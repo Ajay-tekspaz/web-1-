@@ -1,0 +1,9 @@
+# When this repository is deployed to your own Airflow (docs/your-airflow.md), Airflow should load only
+# airflow/dags/tekspaz_daily.py from it. Plain names only: they mean the same in Airflow 2's regexp
+# syntax and Airflow 3's glob syntax.
+daily_expense_tracker_fintech_application_orchestration.py
+tests
+include
+scripts
+template
+loaders

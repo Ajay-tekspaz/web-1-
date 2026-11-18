@@ -1,0 +1,23 @@
+# The Airbyte source (K-15): a Postgres standing in for the retail chain's operational DB.
+#   docker compose -f ingestion/postgres/docker-compose.yml up -d
+#   python -m loaders.postgres_seeder --data_dir data/generated
+# Port 5433 so it doesn't clash with a local Postgres or Airbyte's own.
+
+services:
+  retail-source:
+    image: postgres:16
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: daily_expense_tracker_fintech_application_source
+      POSTGRES_USER: retail
+      POSTGRES_PASSWORD: ${SOURCE_POSTGRES_PASSWORD:-retail}   # local only
+    volumes:
+      - daily_expense_tracker_fintech_application_source:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U retail -d daily_expense_tracker_fintech_application_source"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  daily_expense_tracker_fintech_application_source:

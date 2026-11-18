@@ -1,0 +1,93 @@
+version: 2
+
+models:
+  - name: dim_stores
+    description: Store dimension.
+    columns:
+      - name: store_id
+        data_tests: [unique, not_null]
+
+  - name: dim_products
+    description: Product dimension with list margin.
+    columns:
+      - name: sku
+        data_tests: [unique, not_null]
+      - name: list_margin_pct
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+
+  - name: fct_sales_daily
+    description: >
+      Daily sales per store and SKU. Incremental; dates touched by late-arriving rows are rebuilt.
+      net_revenue = sum(quantity x list price) - promotion discounts.
+    meta:
+      owner: data-platform
+      refresh_frequency: daily
+    columns:
+      - name: sales_key
+        data_tests: [unique, not_null]
+      - name: sale_date
+        data_tests: [not_null]
+      - name: store_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_stores')
+              field: store_id
+      - name: sku
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_products')
+              field: sku
+      - name: units_sold
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+      - name: net_revenue
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: discount_amount
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+
+  - name: fct_inventory_position
+    description: End-of-day stock position per store and SKU, with 7-day sales rate and days of cover.
+    meta:
+      owner: data-platform
+      refresh_frequency: daily
+    columns:
+      - name: inventory_key
+        data_tests: [unique, not_null]
+      - name: store_id
+        data_tests:
+          - relationships:
+              to: ref('dim_stores')
+              field: store_id
+      - name: sku
+        data_tests:
+          - relationships:
+              to: ref('dim_products')
+              field: sku
+      - name: quantity_on_hand
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: stock_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['OUT_OF_STOCK', 'LOW', 'MEDIUM', 'SUFFICIENT']
+
+  - name: rpt_sales_daily
+    description: fct_sales_daily joined to store and product attributes, for BI.
+
+  - name: rpt_inventory_daily
+    description: fct_inventory_position joined to store and product attributes, for BI.

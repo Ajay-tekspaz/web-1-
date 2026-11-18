@@ -1,0 +1,24 @@
+[sqlfluff]
+dialect = snowflake
+templater = jinja
+max_line_length = 120
+# Package macros (dbt_utils.*, dbt.*) are not available to the plain jinja templater;
+# they render as placeholders instead of failing the lint.
+ignore = templating
+# Style rules that fight dbt idioms (implicit aliases in select *, column order in CTEs)
+exclude_rules = AM04, ST06, RF04, ST05
+
+[sqlfluff:templater:jinja]
+apply_dbt_builtins = True
+load_macros_from_path = dbt/macros
+
+[sqlfluff:indentation]
+tab_space_size = 4
+indented_joins = False
+indented_using_on = True
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.functions]
+extended_capitalisation_policy = lower

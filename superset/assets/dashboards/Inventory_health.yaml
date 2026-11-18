@@ -1,0 +1,259 @@
+dashboard_title: Inventory health
+description: null
+css: null
+slug: inventory-health
+certified_by: null
+certification_details: null
+published: true
+uuid: 7bf9b844-ef8d-4412-ae74-84356736e4ee
+position:
+  DASHBOARD_VERSION_KEY: v2
+  ROOT_ID:
+    type: ROOT
+    id: ROOT_ID
+    children:
+    - GRID_ID
+  GRID_ID:
+    type: GRID
+    id: GRID_ID
+    children:
+    - ROW-0
+    - ROW-1
+    - ROW-2
+    parents:
+    - ROOT_ID
+  HEADER_ID:
+    id: HEADER_ID
+    type: HEADER
+    meta:
+      text: Inventory health
+  ROW-0:
+    type: ROW
+    id: ROW-0
+    children:
+    - CHART-11
+    - CHART-12
+    - CHART-13
+    - CHART-14
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  CHART-11:
+    type: CHART
+    id: CHART-11
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-0
+    meta:
+      chartId: 11
+      width: 3
+      height: 30
+      sliceName: Stockout rate (latest day)
+      uuid: a38b6c3b-8471-4e7d-a594-ed2dc73ff768
+  CHART-12:
+    type: CHART
+    id: CHART-12
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-0
+    meta:
+      chartId: 12
+      width: 3
+      height: 30
+      sliceName: SKU-stores out of stock (latest)
+      uuid: 622c5fce-61f8-42d6-8db4-bed9a67a79c8
+  CHART-13:
+    type: CHART
+    id: CHART-13
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-0
+    meta:
+      chartId: 13
+      width: 3
+      height: 30
+      sliceName: Inventory at cost (latest)
+      uuid: 14472e00-2358-4942-a6ba-23170bcd6be9
+  CHART-14:
+    type: CHART
+    id: CHART-14
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-0
+    meta:
+      chartId: 14
+      width: 3
+      height: 30
+      sliceName: Units on hand (latest)
+      uuid: 93826bbc-574b-4651-b134-b47dea2a6c81
+  ROW-1:
+    type: ROW
+    id: ROW-1
+    children:
+    - CHART-15
+    - CHART-16
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  CHART-15:
+    type: CHART
+    id: CHART-15
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-1
+    meta:
+      chartId: 15
+      width: 6
+      height: 60
+      sliceName: Stockout rate by region
+      uuid: 2aed934f-6d1f-439e-9e66-0b79eb94cff6
+  CHART-16:
+    type: CHART
+    id: CHART-16
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-1
+    meta:
+      chartId: 16
+      width: 6
+      height: 60
+      sliceName: Stock status mix (latest day)
+      uuid: 0078a236-b93c-4b6e-836f-598224cb701d
+  ROW-2:
+    type: ROW
+    id: ROW-2
+    children:
+    - CHART-17
+    - CHART-18
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  CHART-17:
+    type: CHART
+    id: CHART-17
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-2
+    meta:
+      chartId: 17
+      width: 6
+      height: 60
+      sliceName: Stockout days by store
+      uuid: ebfa4a9f-1243-4bf8-90a2-7c50197f57be
+  CHART-18:
+    type: CHART
+    id: CHART-18
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-2
+    meta:
+      chartId: 18
+      width: 6
+      height: 60
+      sliceName: At-risk items (latest day, < 3 days of cover)
+      uuid: 079289b3-2fe7-4363-a501-086d4776fe3c
+metadata:
+  native_filter_configuration:
+  - id: NATIVE_FILTER-inv_region
+    name: Region
+    filterType: filter_select
+    type: NATIVE_FILTER
+    targets:
+    - column:
+        name: region
+      datasetUuid: 5ac0dce8-3f40-49e4-9e48-f5af7d4c9db5
+    controlValues:
+      enableEmptyFilter: false
+      defaultToFirstItem: false
+      multiSelect: true
+      searchAllOptions: false
+      inverseSelection: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    description: ''
+  - id: NATIVE_FILTER-inv_store
+    name: Store
+    filterType: filter_select
+    type: NATIVE_FILTER
+    targets:
+    - column:
+        name: store_name
+      datasetUuid: 5ac0dce8-3f40-49e4-9e48-f5af7d4c9db5
+    controlValues:
+      enableEmptyFilter: false
+      defaultToFirstItem: false
+      multiSelect: true
+      searchAllOptions: false
+      inverseSelection: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    description: ''
+  - id: NATIVE_FILTER-inv_status
+    name: Stock status
+    filterType: filter_select
+    type: NATIVE_FILTER
+    targets:
+    - column:
+        name: stock_status
+      datasetUuid: 5ac0dce8-3f40-49e4-9e48-f5af7d4c9db5
+    controlValues:
+      enableEmptyFilter: false
+      defaultToFirstItem: false
+      multiSelect: true
+      searchAllOptions: false
+      inverseSelection: false
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    description: ''
+  color_scheme: supersetColors
+  refresh_frequency: 0
+  cross_filters_enabled: true
+  expanded_slices: {}
+  label_colors: {}
+  timed_refresh_immune_slices: []
+  shared_label_colors: {}
+  color_scheme_domain: []
+version: 1.0.0

@@ -1,0 +1,94 @@
+version: 2
+
+models:
+  - name: stg_stores
+    description: One row per store.
+    columns:
+      - name: store_id
+        data_tests: [unique, not_null]
+      - name: region
+        data_tests:
+          - accepted_values:
+              values: ['North', 'South', 'East', 'West']
+
+  - name: stg_products
+    description: One row per product (SKU).
+    columns:
+      - name: sku
+        data_tests: [unique, not_null]
+      - name: category
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['Electronics', 'Hardware', 'Clothing', 'Food', 'Books', 'Home & Garden']
+      - name: unit_price
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+
+  - name: stg_promotions
+    description: Promotion windows on a category or a single SKU.
+    columns:
+      - name: promo_id
+        data_tests: [unique, not_null]
+      - name: promo_scope
+        data_tests:
+          - accepted_values:
+              values: ['category', 'sku']
+
+  - name: stg_orders
+    description: Order headers, de-duplicated (D2) with the renamed timestamp column repaired (D4).
+    columns:
+      - name: order_id
+        data_tests: [unique, not_null]
+      - name: store_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_stores')
+              field: store_id
+      - name: order_timestamp
+        data_tests: [not_null]
+      - name: total_amount
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: ingested_at
+        description: When the row landed in the feed; later than order_timestamp for late arrivals (D3).
+        data_tests: [not_null]
+
+  - name: stg_order_lines
+    description: Order lines with a quantity (D1 rows dropped).
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [order_id, line_number]
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+      - name: sku
+        data_tests:
+          - relationships:
+              to: ref('stg_products')
+              field: sku
+      - name: quantity
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+
+  - name: stg_inventory
+    description: End-of-day stock count per store and SKU (D5 rows dropped).
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [snapshot_date, store_id, sku]
+    columns:
+      - name: quantity_on_hand
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0

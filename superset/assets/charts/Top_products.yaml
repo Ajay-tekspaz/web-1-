@@ -1,0 +1,52 @@
+slice_name: Top products
+description: ''
+certified_by: null
+certification_details: null
+viz_type: table
+params:
+  viz_type: table
+  datasource: 1__table
+  adhoc_filters: []
+  query_mode: aggregate
+  groupby:
+  - product_name
+  - category
+  metrics:
+  - expressionType: SIMPLE
+    column:
+      column_name: units_sold
+    aggregate: SUM
+    label: Units
+    optionName: metric_dc887c9e57
+    hasCustomLabel: true
+  - expressionType: SIMPLE
+    column:
+      column_name: net_revenue
+    aggregate: SUM
+    label: Net revenue
+    optionName: metric_cca37a9a07
+    hasCustomLabel: true
+  - expressionType: SIMPLE
+    column:
+      column_name: gross_margin
+    aggregate: SUM
+    label: Gross margin
+    optionName: metric_a475da2225
+    hasCustomLabel: true
+  timeseries_limit_metric:
+    expressionType: SIMPLE
+    column:
+      column_name: net_revenue
+    aggregate: SUM
+    label: Net revenue
+    optionName: metric_cca37a9a07
+    hasCustomLabel: true
+  order_desc: true
+  row_limit: 15
+  server_page_length: 15
+  table_timestamp_format: smart_date
+query_context: null
+cache_timeout: null
+uuid: 4933898d-f057-41be-8012-184e5097c483
+version: 1.0.0
+dataset_uuid: 8bf7b227-9a79-4ffd-a329-97b800d2982a

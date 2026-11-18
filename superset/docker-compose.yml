@@ -1,0 +1,22 @@
+# Superset on the gold layer (K-13). From the repo root, after `python scripts/run_pipeline.py`:
+#   docker compose -f superset/docker-compose.yml up --build
+#   open http://localhost:8088  (admin / admin; change SUPERSET_ADMIN_PASSWORD outside local dev)
+
+services:
+  superset:
+    build: .
+    command: ["bash", "/app/repo/docker-init.sh"]
+    ports:
+      - "8088:8088"
+    environment:
+      SUPERSET_CONFIG_PATH: /app/repo/superset_config.py
+      SUPERSET_HOME: /app/superset_home
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-local-dev-only-change-me}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:-admin}
+    volumes:
+      - ./:/app/repo:ro
+      - ../data:/app/data:ro        # data/lakehouse.duckdb, opened read-only
+      - superset_home:/app/superset_home
+
+volumes:
+  superset_home:

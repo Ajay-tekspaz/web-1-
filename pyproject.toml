@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "daily-expense-tracker-fintech-application"
+version = "0.2.0"
+description = "Reference lakehouse: synthetic data, raw loaders, dbt, forecasts, orchestration"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["python"]
+include = ["lakehouse*", "loaders*", "data_generation*", "forecasts*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "airflow/tests"]
+pythonpath = ["python", "airflow/include", "airflow/dags"]

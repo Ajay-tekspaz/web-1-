@@ -1,0 +1,100 @@
+name: Snowflake build (dev)
+
+# The build the manual run (dbt Test) and the nightly schedule (dbt Scheduled) share: get the raw data, load it
+# into DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_SANDBOX, dbt build the marts, forecast, dbt build the forecast. Dev only, through the `dev`
+# environment's secrets. Called by those two workflows; not run on its own.
+#
+# Raw data comes from the customer's own Airbyte when the `dev` environment has AIRBYTE_CONNECTION_ID (the
+# connection loads the raw schema; python/loaders/airbyte_sync.py starts it and waits, docs/ingestion.md "Your
+# own Airbyte"), else from the customer's own Postgres when it has SOURCE_POSTGRES_HOST
+# (python/loaders/postgres_extractor.py, "Your own source"), otherwise from the generator.
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      DBT_TARGET: dev
+      DBT_PROFILES_DIR: .
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      # The Snowflake connection's own role, warehouse and database (the Tekspaz platform writes them into this
+      # environment) win; without them, the names this template stamps for the project.
+      SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE || 'DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_PIPELINE_ROLE' }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE || 'DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_PIPELINE_XS' }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE || 'DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_DEV' }}
+      SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
+      SNOWFLAKE_PRIVATE_KEY_PASSPHRASE: ${{ secrets.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE }}
+      SOURCE_POSTGRES_HOST: ${{ secrets.SOURCE_POSTGRES_HOST }}
+      SOURCE_POSTGRES_PORT: ${{ secrets.SOURCE_POSTGRES_PORT }}
+      SOURCE_POSTGRES_DATABASE: ${{ secrets.SOURCE_POSTGRES_DATABASE }}
+      SOURCE_POSTGRES_USER: ${{ secrets.SOURCE_POSTGRES_USER }}
+      SOURCE_POSTGRES_PASSWORD: ${{ secrets.SOURCE_POSTGRES_PASSWORD }}
+      SOURCE_POSTGRES_SSLMODE: ${{ secrets.SOURCE_POSTGRES_SSLMODE }}
+      AIRBYTE_CONNECTION_ID: ${{ secrets.AIRBYTE_CONNECTION_ID }}
+      AIRBYTE_API_URL: ${{ secrets.AIRBYTE_API_URL }}
+      AIRBYTE_CLIENT_ID: ${{ secrets.AIRBYTE_CLIENT_ID }}
+      AIRBYTE_CLIENT_SECRET: ${{ secrets.AIRBYTE_CLIENT_SECRET }}
+      AIRBYTE_TOKEN: ${{ secrets.AIRBYTE_TOKEN }}
+      # dbt on the customer's own dbt Cloud (docs/dbt-cloud.md): their job runs this branch's dbt steps.
+      DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
+      DBT_CLOUD_JOB_ID: ${{ secrets.DBT_CLOUD_JOB_ID }}
+      DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_TOKEN }}
+      DBT_CLOUD_HOST: ${{ secrets.DBT_CLOUD_HOST }}
+      DBT_CLOUD_GIT_BRANCH: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.11'
+      - run: |
+          pip install -r requirements.txt
+          pip install -e . --no-deps
+
+      - name: Raw data from the customer's Airbyte
+        if: env.AIRBYTE_CONNECTION_ID != ''
+        run: python -m loaders.airbyte_sync
+
+      - name: Raw data from the customer's source Postgres
+        if: env.AIRBYTE_CONNECTION_ID == '' && env.SOURCE_POSTGRES_HOST != ''
+        run: |
+          python -m loaders.postgres_extractor --data_dir data/generated
+          python -m loaders.snowflake_loader --data_dir data/generated --full_refresh --apply
+
+      - name: Raw data from the generator (no source configured)
+        if: env.AIRBYTE_CONNECTION_ID == '' && env.SOURCE_POSTGRES_HOST == ''
+        run: |
+          python python/data_generation/deterministic_generator.py --output_path data/generated
+          python -m loaders.snowflake_loader --data_dir data/generated --apply
+
+      - name: dbt build (staging + marts)
+        if: env.DBT_CLOUD_JOB_ID == ''
+        working-directory: dbt
+        run: dbt deps && dbt build --exclude tag:forecast
+
+      - name: dbt build (staging + marts) on the customer's dbt Cloud
+        if: env.DBT_CLOUD_JOB_ID != ''
+        run: python -m loaders.dbt_cloud_run --step "dbt build --exclude tag:forecast" --run-results dbt/target/run_results.json
+
+      - name: Forecast + dbt build (forecast)
+        run: |
+          python -m forecasts.demand_forecast --target snowflake --apply
+          if [ -n "$DBT_CLOUD_JOB_ID" ]; then
+            python -m loaders.dbt_cloud_run --step "dbt build --select tag:forecast" --run-results dbt/target/run_results.json
+          else
+            cd dbt && dbt build --select tag:forecast
+          fi
+
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: snowflake-run-results
+          path: |
+            dbt/target/run_results.json
+            data/forecast_metrics.json

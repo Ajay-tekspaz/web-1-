@@ -1,0 +1,29 @@
+slice_name: Inventory at cost (latest)
+description: ''
+certified_by: null
+certification_details: null
+viz_type: big_number_total
+params:
+  viz_type: big_number_total
+  datasource: 2__table
+  adhoc_filters:
+  - expressionType: SQL
+    clause: WHERE
+    sqlExpression: is_latest_snapshot
+    filterOptionName: filter_162ebc097a
+  metric:
+    expressionType: SIMPLE
+    column:
+      column_name: inventory_value_cost
+    aggregate: SUM
+    label: At cost
+    optionName: metric_8c4269e27b
+    hasCustomLabel: true
+  y_axis_format: $,.3~s
+  header_font_size: 0.4
+  subheader_font_size: 0.15
+query_context: null
+cache_timeout: null
+uuid: 14472e00-2358-4942-a6ba-23170bcd6be9
+version: 1.0.0
+dataset_uuid: 5ac0dce8-3f40-49e4-9e48-f5af7d4c9db5

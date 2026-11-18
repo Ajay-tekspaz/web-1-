@@ -1,0 +1,7 @@
+# What CI installs: runtime + test and lint tools.
+-r requirements.txt
+
+pytest~=8.3
+sqlfluff~=3.2
+flake8~=7.1
+mypy~=1.13

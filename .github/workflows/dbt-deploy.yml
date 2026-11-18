@@ -1,0 +1,73 @@
+name: dbt Deploy
+
+# Manual only, dev only. There is deliberately no production target here: it comes back
+# only after written sign-off from @Giveson-Tekspaz (AGENTS.md "Dry-run by default").
+# Default is a dry run (compile + validate); tick `apply` to build in DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_SANDBOX.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Deployment target
+        type: choice
+        options: [dev]
+        default: dev
+      apply:
+        description: Apply changes (unticked = dry run)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      DBT_TARGET: dev
+      DBT_PROFILES_DIR: .
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_ROLE: DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_PIPELINE_ROLE
+      SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
+      SNOWFLAKE_PRIVATE_KEY_PASSPHRASE: ${{ secrets.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Snowflake migrations (dry run unless apply)
+        env:
+          # an admin role that may create roles/users/warehouses/tags; DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_SANDBOX may not
+          SNOWFLAKE_MIGRATION_ROLE: ${{ vars.SNOWFLAKE_MIGRATION_ROLE }}
+        run: python snowflake/apply_migrations.py ${{ inputs.apply && '--apply' || '' }}
+
+      - name: dbt compile (dry run)
+        if: ${{ !inputs.apply }}
+        working-directory: dbt
+        run: dbt deps && dbt compile
+
+      - name: dbt build in DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_SANDBOX
+        if: ${{ inputs.apply }}
+        working-directory: dbt
+        run: dbt deps && dbt build --exclude tag:forecast
+
+      - name: Notify Slack
+        if: always() && env.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ env.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {"text": "daily-expense-tracker-fintech-application deploy to dev (${{ inputs.apply && 'apply' || 'dry run' }}): ${{ job.status }} - ${{ github.sha }}"}

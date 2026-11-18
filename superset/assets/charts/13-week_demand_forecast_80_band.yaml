@@ -1,0 +1,50 @@
+slice_name: 13-week demand forecast (80% band)
+description: ''
+certified_by: null
+certification_details: null
+viz_type: echarts_timeseries_line
+params:
+  viz_type: echarts_timeseries_line
+  datasource: 3__table
+  adhoc_filters:
+  - expressionType: SIMPLE
+    subject: forecast_week
+    operator: TEMPORAL_RANGE
+    comparator: No filter
+    clause: WHERE
+    filterOptionName: filter_time_forecast_week
+  x_axis: forecast_week
+  time_grain_sqla: P1W
+  metrics:
+  - expressionType: SIMPLE
+    column:
+      column_name: lower_80
+    aggregate: SUM
+    label: Lower 80%
+    optionName: metric_bde3f54ac7
+    hasCustomLabel: true
+  - expressionType: SIMPLE
+    column:
+      column_name: forecast_units
+    aggregate: SUM
+    label: Forecast units
+    optionName: metric_7166801677
+    hasCustomLabel: true
+  - expressionType: SIMPLE
+    column:
+      column_name: upper_80
+    aggregate: SUM
+    label: Upper 80%
+    optionName: metric_22216a6153
+    hasCustomLabel: true
+  groupby: []
+  row_limit: 10000
+  show_legend: true
+  rich_tooltip: true
+  y_axis_format: ',.0f'
+  markerEnabled: true
+query_context: null
+cache_timeout: null
+uuid: 47c8e906-f60a-4a2b-bfc2-db52fb0cf221
+version: 1.0.0
+dataset_uuid: ac1cd76f-6f94-48ea-83f4-62293d3b302e

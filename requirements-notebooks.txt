@@ -1,0 +1,10 @@
+# Optional: exploratory notebooks and forecast benchmarking. Not installed in CI.
+-r requirements.txt
+
+jupyter
+notebook
+ipython
+optuna
+prophet  # benchmark only; the production forecast is Holt-Winters (statsmodels)
+great-expectations
+scikit-learn

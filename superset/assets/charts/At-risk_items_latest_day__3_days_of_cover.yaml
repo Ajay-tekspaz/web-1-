@@ -1,0 +1,37 @@
+slice_name: At-risk items (latest day, < 3 days of cover)
+description: ''
+certified_by: null
+certification_details: null
+viz_type: table
+params:
+  viz_type: table
+  datasource: 2__table
+  adhoc_filters:
+  - expressionType: SQL
+    clause: WHERE
+    sqlExpression: is_latest_snapshot
+    filterOptionName: filter_162ebc097a
+  - expressionType: SQL
+    clause: WHERE
+    sqlExpression: days_of_cover < 3 OR quantity_on_hand = 0
+    filterOptionName: filter_e7ce3bb6d5
+  query_mode: raw
+  all_columns:
+  - store_name
+  - product_name
+  - category
+  - quantity_on_hand
+  - reorder_level
+  - avg_daily_units_7d
+  - days_of_cover
+  - stock_status
+  order_by_cols:
+  - '["days_of_cover", true]'
+  row_limit: 500
+  server_page_length: 15
+  include_search: true
+query_context: null
+cache_timeout: null
+uuid: 079289b3-2fe7-4363-a501-086d4776fe3c
+version: 1.0.0
+dataset_uuid: 5ac0dce8-3f40-49e4-9e48-f5af7d4c9db5

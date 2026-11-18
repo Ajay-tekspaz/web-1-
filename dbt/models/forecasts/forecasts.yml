@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: fct_demand_forecast
+    description: >
+      Holt-Winters (additive, damped trend, weekly seasonality on daily sales) forecast per
+      store x SKU x week, summed from daily simulations; lower_80/upper_80 are the 10th/90th
+      percentiles of 500 simulated paths. holdout_mape is the series' error on the last 4 weeks.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [forecast_week, store_id, sku]
+      - dbt_utils.expression_is_true:
+          expression: "lower_80 <= forecast_units and forecast_units <= upper_80"
+      - dbt_utils.expression_is_true:
+          expression: "forecast_week > trained_through"
+    columns:
+      - name: forecast_key
+        data_tests: [unique, not_null]
+      - name: store_id
+        data_tests:
+          - relationships:
+              to: ref('dim_stores')
+              field: store_id
+      - name: sku
+        data_tests:
+          - relationships:
+              to: ref('dim_products')
+              field: sku
+      - name: forecast_units
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: lower_80
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0

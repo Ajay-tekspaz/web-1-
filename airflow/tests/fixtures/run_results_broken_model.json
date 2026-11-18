@@ -1,0 +1,29 @@
+{
+  "_comment": "Constructed in dbt-snowflake 1.8's run_results shape (not captured from a live run): one success, one compile-time failure.",
+  "metadata": {
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/run-results/v6.json",
+    "dbt_version": "1.8.8",
+    "invocation_id": "5c4c9c7e-1d0e-4a8e-9f33-0c2f1b7a9d11"
+  },
+  "results": [
+    {
+      "status": "success",
+      "unique_id": "model.daily_expense_tracker_fintech_application.stg_orders",
+      "message": "SUCCESS 1",
+      "adapter_response": {"_message": "SUCCESS 1", "code": "SUCCESS", "rows_affected": 1,
+                           "query_id": "01b7f0c2-0001-a1b2-0000-0004d2a1b0a1"}
+    },
+    {
+      "status": "error",
+      "unique_id": "model.daily_expense_tracker_fintech_application.broken_model",
+      "message": "Database Error in model broken_model (models/demo/broken_model.sql)\n  002003 (42S02): 01b7f0c2-0001-a1b2-0000-0004d2a1b0c6: SQL compilation error:\n  Object 'DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_DEV.GOLD.TABLE_THAT_DOES_NOT_EXIST' does not exist or not authorized.",
+      "adapter_response": {}
+    },
+    {
+      "status": "skipped",
+      "unique_id": "test.daily_expense_tracker_fintech_application.not_null_broken_model_order_id",
+      "message": null,
+      "adapter_response": {}
+    }
+  ]
+}

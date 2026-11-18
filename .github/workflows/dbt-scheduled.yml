@@ -1,0 +1,24 @@
+name: dbt Scheduled
+
+# The nightly dev build on Snowflake DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_SANDBOX. Off until the repository variable SNOWFLAKE_SCHEDULE is set to
+# `on` (the Tekspaz platform sets it from "Run nightly" on the project's Deployments page; you can set it by
+# hand under Settings > Secrets and variables > Actions > Variables). Dev only: there is no production schedule.
+# GitHub runs scheduled workflows from the default branch, so this starts once the project's pull request is merged.
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # 02:00 UTC every day
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dbt-scheduled
+  cancel-in-progress: false
+
+jobs:
+  nightly:
+    if: vars.SNOWFLAKE_SCHEDULE == 'on'
+    uses: ./.github/workflows/snowflake-build.yml
+    secrets: inherit

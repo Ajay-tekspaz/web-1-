@@ -1,0 +1,6 @@
+# Installed into the Airflow 2.10.5 image (airflow/Dockerfile) with Airflow's constraints file.
+# dbt lives in its own virtualenv in the image so its pins never fight Airflow's.
+apache-airflow-providers-snowflake
+apache-airflow-providers-airbyte
+statsmodels
+duckdb

@@ -1,0 +1,29 @@
+slice_name: Units on hand (latest)
+description: ''
+certified_by: null
+certification_details: null
+viz_type: big_number_total
+params:
+  viz_type: big_number_total
+  datasource: 2__table
+  adhoc_filters:
+  - expressionType: SQL
+    clause: WHERE
+    sqlExpression: is_latest_snapshot
+    filterOptionName: filter_162ebc097a
+  metric:
+    expressionType: SIMPLE
+    column:
+      column_name: quantity_on_hand
+    aggregate: SUM
+    label: On hand
+    optionName: metric_b13013fca9
+    hasCustomLabel: true
+  y_axis_format: ',.0f'
+  header_font_size: 0.4
+  subheader_font_size: 0.15
+query_context: null
+cache_timeout: null
+uuid: 93826bbc-574b-4651-b134-b47dea2a6c81
+version: 1.0.0
+dataset_uuid: 5ac0dce8-3f40-49e4-9e48-f5af7d4c9db5

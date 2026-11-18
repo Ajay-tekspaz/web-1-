@@ -1,0 +1,25 @@
+slice_name: Net revenue
+description: ''
+certified_by: null
+certification_details: null
+viz_type: big_number_total
+params:
+  viz_type: big_number_total
+  datasource: 1__table
+  adhoc_filters: []
+  metric:
+    expressionType: SIMPLE
+    column:
+      column_name: net_revenue
+    aggregate: SUM
+    label: Net revenue
+    optionName: metric_cca37a9a07
+    hasCustomLabel: true
+  y_axis_format: $,.3~s
+  header_font_size: 0.4
+  subheader_font_size: 0.15
+query_context: null
+cache_timeout: null
+uuid: f11f9a52-6af8-4c66-89b5-995ea04a8957
+version: 1.0.0
+dataset_uuid: 8bf7b227-9a79-4ffd-a329-97b800d2982a

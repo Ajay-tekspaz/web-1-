@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars (git-ignored) and fill in. Never commit real values.
+airbyte_client_id        = "<from: abctl local credentials>"
+airbyte_client_secret    = "<from: abctl local credentials>"
+workspace_id             = "<from the Airbyte UI URL: /workspaces/<id>/...>"
+source_postgres_password = "retail" # local docker-compose default
+snowflake_host           = "<account>.snowflakecomputing.com"
+snowflake_private_key    = "<PEM for DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_AIRBYTE; e.g. file(\"../../../.secrets/airbyte_svc.p8\")>"
