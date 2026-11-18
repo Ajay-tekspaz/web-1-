@@ -1,0 +1,23 @@
+slice_name: Gross margin %
+description: ''
+certified_by: null
+certification_details: null
+viz_type: big_number_total
+params:
+  viz_type: big_number_total
+  datasource: 1__table
+  adhoc_filters: []
+  metric:
+    expressionType: SQL
+    sqlExpression: SUM(gross_margin) / NULLIF(SUM(net_revenue), 0)
+    label: Gross margin %
+    optionName: metric_23a43b1ef8
+    hasCustomLabel: true
+  y_axis_format: .1%
+  header_font_size: 0.4
+  subheader_font_size: 0.15
+query_context: null
+cache_timeout: null
+uuid: b47c3ad4-ebb4-40b7-bbbe-242c9190aed9
+version: 1.0.0
+dataset_uuid: 8bf7b227-9a79-4ffd-a329-97b800d2982a

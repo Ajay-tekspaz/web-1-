@@ -1,0 +1,27 @@
+slice_name: Stockout rate (latest day)
+description: ''
+certified_by: null
+certification_details: null
+viz_type: big_number_total
+params:
+  viz_type: big_number_total
+  datasource: 2__table
+  adhoc_filters:
+  - expressionType: SQL
+    clause: WHERE
+    sqlExpression: is_latest_snapshot
+    filterOptionName: filter_162ebc097a
+  metric:
+    expressionType: SQL
+    sqlExpression: AVG(is_stockout)
+    label: Stockout rate
+    optionName: metric_01883edb2e
+    hasCustomLabel: true
+  y_axis_format: .1%
+  header_font_size: 0.4
+  subheader_font_size: 0.15
+query_context: null
+cache_timeout: null
+uuid: a38b6c3b-8471-4e7d-a594-ed2dc73ff768
+version: 1.0.0
+dataset_uuid: 5ac0dce8-3f40-49e4-9e48-f5af7d4c9db5

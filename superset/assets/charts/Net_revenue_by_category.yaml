@@ -1,0 +1,30 @@
+slice_name: Net revenue by category
+description: ''
+certified_by: null
+certification_details: null
+viz_type: pie
+params:
+  viz_type: pie
+  datasource: 1__table
+  adhoc_filters: []
+  groupby:
+  - category
+  metric:
+    expressionType: SIMPLE
+    column:
+      column_name: net_revenue
+    aggregate: SUM
+    label: Net revenue
+    optionName: metric_cca37a9a07
+    hasCustomLabel: true
+  row_limit: 100
+  show_labels: true
+  label_type: key_percent
+  number_format: $,.0f
+  donut: true
+  show_legend: true
+query_context: null
+cache_timeout: null
+uuid: 282afe13-0990-48e5-9e54-00a4cf9a1896
+version: 1.0.0
+dataset_uuid: 8bf7b227-9a79-4ffd-a329-97b800d2982a

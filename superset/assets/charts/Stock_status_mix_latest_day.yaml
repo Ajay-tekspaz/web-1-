@@ -1,0 +1,31 @@
+slice_name: Stock status mix (latest day)
+description: ''
+certified_by: null
+certification_details: null
+viz_type: pie
+params:
+  viz_type: pie
+  datasource: 2__table
+  adhoc_filters:
+  - expressionType: SQL
+    clause: WHERE
+    sqlExpression: is_latest_snapshot
+    filterOptionName: filter_162ebc097a
+  groupby:
+  - stock_status
+  metric:
+    expressionType: SQL
+    sqlExpression: COUNT(*)
+    label: SKU-stores
+    optionName: metric_1f5532ea9f
+    hasCustomLabel: true
+  row_limit: 10
+  show_labels: true
+  label_type: key_percent
+  donut: true
+  show_legend: true
+query_context: null
+cache_timeout: null
+uuid: 0078a236-b93c-4b6e-836f-598224cb701d
+version: 1.0.0
+dataset_uuid: 5ac0dce8-3f40-49e4-9e48-f5af7d4c9db5

@@ -1,0 +1,22 @@
+# Runtime dependencies: what the pipeline itself needs to run.
+# CI installs requirements-dev.txt (this file + test/lint tools).
+# Notebook and benchmarking extras live in requirements-notebooks.txt.
+
+# dbt (Snowflake is the warehouse; DuckDB is the local/CI stand-in)
+dbt-core~=1.8.0
+dbt-snowflake==1.8.0
+dbt-duckdb~=1.8.0
+
+# Cloud SDKs
+snowflake-connector-python[pandas]~=3.12
+
+# Data generation, loading and forecasting
+pandas>=2.0,<2.2  # the versions these pins were tested with
+numpy~=1.26
+statsmodels~=0.14.2
+duckdb~=1.1
+
+# Utilities
+python-dotenv~=1.0
+pyyaml~=6.0
+requests~=2.32

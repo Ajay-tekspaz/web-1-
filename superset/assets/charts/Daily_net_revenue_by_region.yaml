@@ -1,0 +1,37 @@
+slice_name: Daily net revenue by region
+description: ''
+certified_by: null
+certification_details: null
+viz_type: echarts_timeseries_line
+params:
+  viz_type: echarts_timeseries_line
+  datasource: 1__table
+  adhoc_filters:
+  - expressionType: SIMPLE
+    subject: sale_date
+    operator: TEMPORAL_RANGE
+    comparator: No filter
+    clause: WHERE
+    filterOptionName: filter_time_sale_date
+  x_axis: sale_date
+  time_grain_sqla: P1D
+  metrics:
+  - expressionType: SIMPLE
+    column:
+      column_name: net_revenue
+    aggregate: SUM
+    label: Net revenue
+    optionName: metric_cca37a9a07
+    hasCustomLabel: true
+  groupby:
+  - region
+  row_limit: 10000
+  show_legend: true
+  rich_tooltip: true
+  y_axis_format: $,.0f
+  truncate_metric: true
+query_context: null
+cache_timeout: null
+uuid: b8f2fd8f-dd16-429d-97ea-048c3857fe1e
+version: 1.0.0
+dataset_uuid: 8bf7b227-9a79-4ffd-a329-97b800d2982a

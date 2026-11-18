@@ -1,0 +1,61 @@
+name: Orchestration & Template
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  airflow-dag-test:
+    runs-on: ubuntu-latest
+    env:
+      # infraops is a private repo; a read-only token lets CI import TrackedSnowflakeHook from it
+      INFRAOPS_TOKEN: ${{ secrets.INFRAOPS_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out infraops (TrackedSnowflakeHook)
+        if: env.INFRAOPS_TOKEN != ''
+        uses: actions/checkout@v4
+        with:
+          repository: skilled-coderAI/infraops
+          token: ${{ secrets.INFRAOPS_READ_TOKEN }}
+          path: infraops
+
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.11'
+
+      - name: Install Airflow 2.10.5 (with constraints) and task dependencies
+        run: |
+          pip install "apache-airflow==2.10.5" -r airflow/requirements-airflow.txt \
+            --constraint https://raw.githubusercontent.com/apache/airflow/constraints-2.10.5/constraints-3.11.txt
+          pip install pytest cryptography
+
+      - name: DAG import test + task tests
+        env:
+          AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+          AIRFLOW__CORE__UNIT_TEST_MODE: 'true'
+          PYTHONPATH: ${{ github.workspace }}/infraops/src
+        run: |
+          airflow db migrate > /dev/null
+          pytest airflow/tests -v -rs
+
+      - name: Note when infraops is not available
+        if: env.INFRAOPS_TOKEN == ''
+        run: echo "::warning::INFRAOPS_READ_TOKEN is not set, so the DAG import test was skipped (infraops is private)."
+
+
+  airbyte-terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ingestion/airbyte/terraform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform fmt -check -diff
+      - run: terraform init -backend=false -input=false
+      - run: terraform validate

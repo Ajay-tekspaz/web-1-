@@ -1,0 +1,42 @@
+# dbt project for the retail lakehouse gold layer.
+# Targets (profiles.yml): `local` = DuckDB stand-in (no account needed), `dev` = Snowflake DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_SANDBOX.
+
+name: 'daily_expense_tracker_fintech_application'
+version: '1.1.0'
+config-version: 2
+profile: 'daily_expense_tracker_fintech_application'
+
+model-paths: ['models']
+macro-paths: ['macros']
+test-paths: ['tests']
+target-path: 'target'
+clean-targets: ['target', 'dbt_packages']
+
+require-dbt-version: ['>=1.8.0', '<1.9.0']
+
+vars:
+  raw_schema: 'DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_SANDBOX'
+  forecast_horizon_weeks: 13
+
+# Query tags (K-11): dbt-snowflake's native `query_tag` config replaces the old ALTER SESSION
+# calls inside model bodies. When Airflow runs dbt it exports AIRFLOW_CTX_* variables, so each
+# query also carries dag_id/task_id/run_id/try_number (infraops Path A). macros/query_tag.sql
+# adds invocation_id and node_id (infraops Path B). Other adapters ignore the config.
+models:
+  daily_expense_tracker_fintech_application:
+    +query_tag: &query_tag '{"project":"daily-expense-tracker-fintech-application","environment":"{{ target.name }}","tool":"dbt","dag_id":"{{ env_var("AIRFLOW_CTX_DAG_ID", "") }}","task_id":"{{ env_var("AIRFLOW_CTX_TASK_ID", "") }}","run_id":"{{ env_var("AIRFLOW_CTX_DAG_RUN_ID", "") }}","try_number":{{ env_var("AIRFLOW_CTX_TRY_NUMBER", "1") }}}'
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: gold
+    forecasts:
+      +materialized: table
+      +schema: gold
+      +tags: ['forecast']
+
+data_tests:
+  daily_expense_tracker_fintech_application:
+    +query_tag: *query_tag
+    +severity: error

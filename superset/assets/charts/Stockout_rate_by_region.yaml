@@ -1,0 +1,34 @@
+slice_name: Stockout rate by region
+description: ''
+certified_by: null
+certification_details: null
+viz_type: echarts_timeseries_line
+params:
+  viz_type: echarts_timeseries_line
+  datasource: 2__table
+  adhoc_filters:
+  - expressionType: SIMPLE
+    subject: snapshot_date
+    operator: TEMPORAL_RANGE
+    comparator: No filter
+    clause: WHERE
+    filterOptionName: filter_time_snapshot_date
+  x_axis: snapshot_date
+  time_grain_sqla: P1W
+  metrics:
+  - expressionType: SQL
+    sqlExpression: AVG(is_stockout)
+    label: Stockout rate
+    optionName: metric_01883edb2e
+    hasCustomLabel: true
+  groupby:
+  - region
+  row_limit: 10000
+  show_legend: true
+  rich_tooltip: true
+  y_axis_format: .1%
+query_context: null
+cache_timeout: null
+uuid: 2aed934f-6d1f-439e-9e66-0b79eb94cff6
+version: 1.0.0
+dataset_uuid: 5ac0dce8-3f40-49e4-9e48-f5af7d4c9db5

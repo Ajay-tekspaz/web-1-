@@ -1,0 +1,82 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      Raw tables in DAILY_EXPENSE_TRACKER_FINTECH_APPLICATION_SANDBOX, loaded from the K-10 generator by Airbyte or the Python loader.
+      Tests here run at `warn`: they exist to catch the known defects listed in
+      docs/data-ground-truth.md, which staging then cleans.
+    database: "{{ target.database }}"
+    schema: "{{ var('raw_schema') }}"
+    quoting:
+      database: false
+      schema: false
+      identifier: false
+    loaded_at_field: _loaded_at
+    freshness:
+      warn_after: {count: 24, period: hour}
+      error_after: {count: 48, period: hour}
+    meta:
+      owner: data-platform
+      project: daily-expense-tracker-fintech-application
+
+    tables:
+      - name: STORES_RAW
+        columns:
+          - name: store_id
+            data_tests: [unique, not_null]
+
+      - name: PRODUCTS_RAW
+        columns:
+          - name: sku
+            data_tests: [unique, not_null]
+
+      - name: PROMOTIONS_RAW
+        columns:
+          - name: promo_id
+            data_tests: [unique, not_null]
+
+      - name: ORDERS_RAW
+        columns:
+          - name: order_id
+            description: "D2: one order is re-sent by the POS feed"
+            data_tests:
+              - unique:
+                  config: {severity: warn}
+          - name: order_timestamp
+            description: "D4: empty for one day's file, where upstream renamed it to order_ts"
+            data_tests:
+              - not_null:
+                  config: {severity: warn}
+
+      - name: ORDER_LINES_RAW
+        columns:
+          - name: quantity
+            description: "D1: ~0.2% of lines arrive with an empty quantity"
+            data_tests:
+              - not_null:
+                  config: {severity: warn}
+
+      - name: INVENTORY_RAW
+        columns:
+          - name: quantity_on_hand
+            description: "D5: a few stock counts are recorded with the wrong sign"
+            data_tests:
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  config: {severity: warn}
+
+  - name: ml
+    description: Output of python/forecasts/demand_forecast.py (Holt-Winters, K-16).
+    database: "{{ target.database }}"
+    schema: ml
+    quoting:
+      database: false
+      schema: false
+      identifier: false
+    tags: ['forecast']
+    tables:
+      - name: DEMAND_FORECAST_OUTPUT
+        data_tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns: [forecast_week, store_id, sku]

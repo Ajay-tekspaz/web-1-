@@ -1,0 +1,51 @@
+name: dbt Lint & Validate
+
+# Static checks that need no warehouse account: Python lint + unit tests, SQL lint,
+# dbt parse (DuckDB target).
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements*.txt
+
+      - name: Install dependencies (runtime + dev only; no notebook extras)
+        run: |
+          pip install -r requirements-dev.txt
+          pip install -e . --no-deps
+
+      - name: Python lint (flake8)
+        # Whole tree; settings come from .flake8, which stamped projects inherit (test_template.sh lints one)
+        run: flake8
+
+      - name: Python type check (mypy)
+        run: mypy python/lakehouse python/loaders python/forecasts python/data_generation --ignore-missing-imports
+
+      - name: Unit tests (pytest)
+        run: pytest tests -q
+
+      - name: SQL lint (sqlfluff)
+        run: sqlfluff lint dbt/models dbt/tests
+
+      - name: dbt deps + parse
+        working-directory: dbt
+        env:
+          DBT_PROFILES_DIR: .
+          DBT_TARGET: local
+        run: |
+          dbt deps
+          dbt parse
+

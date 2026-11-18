@@ -1,0 +1,30 @@
+slice_name: Stockout days by store
+description: ''
+certified_by: null
+certification_details: null
+viz_type: echarts_timeseries_bar
+params:
+  viz_type: echarts_timeseries_bar
+  datasource: 2__table
+  adhoc_filters: []
+  x_axis: store_name
+  metrics:
+  - expressionType: SIMPLE
+    column:
+      column_name: is_stockout
+    aggregate: SUM
+    label: Stockout days
+    optionName: metric_ece4930deb
+    hasCustomLabel: true
+  groupby: []
+  row_limit: 100
+  orientation: horizontal
+  x_axis_sort: Stockout days
+  x_axis_sort_asc: false
+  show_legend: false
+  y_axis_format: ',.0f'
+query_context: null
+cache_timeout: null
+uuid: ebfa4a9f-1243-4bf8-90a2-7c50197f57be
+version: 1.0.0
+dataset_uuid: 5ac0dce8-3f40-49e4-9e48-f5af7d4c9db5

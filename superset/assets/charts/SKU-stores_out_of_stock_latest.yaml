@@ -1,0 +1,29 @@
+slice_name: SKU-stores out of stock (latest)
+description: ''
+certified_by: null
+certification_details: null
+viz_type: big_number_total
+params:
+  viz_type: big_number_total
+  datasource: 2__table
+  adhoc_filters:
+  - expressionType: SQL
+    clause: WHERE
+    sqlExpression: is_latest_snapshot
+    filterOptionName: filter_162ebc097a
+  metric:
+    expressionType: SIMPLE
+    column:
+      column_name: is_stockout
+    aggregate: SUM
+    label: Out of stock
+    optionName: metric_557f2caffe
+    hasCustomLabel: true
+  y_axis_format: ',.0f'
+  header_font_size: 0.4
+  subheader_font_size: 0.15
+query_context: null
+cache_timeout: null
+uuid: 622c5fce-61f8-42d6-8db4-bed9a67a79c8
+version: 1.0.0
+dataset_uuid: 5ac0dce8-3f40-49e4-9e48-f5af7d4c9db5

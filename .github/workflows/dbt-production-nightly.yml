@@ -1,0 +1,67 @@
+name: dbt Production (nightly)
+
+# Rebuilds production every night from the code a reviewer already approved on the default branch, so the
+# gold layer stays fresh. It changes no code: a change reaches production only through `dbt Production`, which
+# GitHub holds for the production environment's required reviewer.
+#
+# Locks, all of which must be open:
+#   1. the repository variable PRODUCTION_ENABLED is `true` (opened by the first approved production deploy)
+#   2. the repository variable PRODUCTION_SCHEDULE is `on`  (the platform's "Run nightly in production")
+#   3. it runs in the `production-nightly` environment, which only the default branch may use
+#   4. that environment has the production connection's secrets, and the database must not look like dev
+#
+# Scheduled only: it can't be started by hand, by a push or by a pull request.
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 03:00 UTC every day, after the dev nightly at 02:00
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  nightly:
+    if: vars.PRODUCTION_ENABLED == 'true' && vars.PRODUCTION_SCHEDULE == 'on' && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    environment: production-nightly
+    env:
+      DBT_TARGET: prod
+      DBT_PROFILES_DIR: .
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE || vars.SNOWFLAKE_ROLE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE || vars.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE || vars.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
+      SNOWFLAKE_PRIVATE_KEY_PASSPHRASE: ${{ secrets.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE }}
+      # dbt on the customer's own dbt Cloud (docs/dbt-cloud.md): their production job, on its own branch (never
+      # overridden here: production runs what its dbt Cloud environment is set to, the default branch).
+      DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
+      DBT_CLOUD_JOB_ID: ${{ secrets.DBT_CLOUD_JOB_ID }}
+      DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_TOKEN }}
+      DBT_CLOUD_HOST: ${{ secrets.DBT_CLOUD_HOST }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+
+      - name: Refuse a target that looks like dev
+        run: |
+          case "$SNOWFLAKE_DATABASE" in
+            ""|*_DEV|*_DEV_*) echo "SNOWFLAKE_DATABASE must be the production database, not '$SNOWFLAKE_DATABASE'"; exit 1;;
+          esac
+
+      - name: dbt build in production
+        if: env.DBT_CLOUD_JOB_ID == ''
+        working-directory: dbt
+        run: dbt deps && dbt build
+
+      - name: dbt build in production on the customer's dbt Cloud
+        if: env.DBT_CLOUD_JOB_ID != ''
+        run: python python/loaders/dbt_cloud_run.py --step "dbt build" --run-results dbt/target/run_results.json

@@ -1,0 +1,34 @@
+# Local Airflow for the daily-expense-tracker-fintech-application DAG (K-12). Run from the repo root:
+#   cp airflow/.env.example airflow/.env      # then edit
+#   docker compose -f airflow/docker-compose.yml up --build
+#   open http://localhost:8080 (user admin; password printed in the logs / standalone_admin_password.txt)
+#
+# Standalone mode = scheduler + webserver + SQLite metadata DB in one container, like infraops' harness.
+
+services:
+  airflow:
+    build:
+      context: ..
+      dockerfile: airflow/Dockerfile
+    command: standalone
+    ports:
+      - "8080:8080"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+      LAKEHOUSE_HOME: /opt/daily-expense-tracker-fintech-application
+      LAKEHOUSE_TARGET: ${LAKEHOUSE_TARGET:-local}
+      PYTHONPATH: /opt/daily-expense-tracker-fintech-application/python:/opt/daily-expense-tracker-fintech-application/airflow/include:/opt/infraops/src
+    volumes:
+      - ..:/opt/daily-expense-tracker-fintech-application
+      - ./dags:/opt/airflow/dags
+      # infraops is private: clone it next to this repo (or set INFRAOPS_SRC) so the DAG can import
+      # infraops.telemetry.tracked_hook
+      - ${INFRAOPS_SRC:-../../infraops/src}:/opt/infraops/src:ro
+      - airflow_home:/opt/airflow
+
+volumes:
+  airflow_home:

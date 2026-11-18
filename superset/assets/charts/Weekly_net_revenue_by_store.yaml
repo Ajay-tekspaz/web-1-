@@ -1,0 +1,38 @@
+slice_name: Weekly net revenue by store
+description: ''
+certified_by: null
+certification_details: null
+viz_type: echarts_timeseries_bar
+params:
+  viz_type: echarts_timeseries_bar
+  datasource: 1__table
+  adhoc_filters:
+  - expressionType: SIMPLE
+    subject: sale_date
+    operator: TEMPORAL_RANGE
+    comparator: No filter
+    clause: WHERE
+    filterOptionName: filter_time_sale_date
+  x_axis: sale_date
+  time_grain_sqla: P1W
+  metrics:
+  - expressionType: SIMPLE
+    column:
+      column_name: net_revenue
+    aggregate: SUM
+    label: Net revenue
+    optionName: metric_cca37a9a07
+    hasCustomLabel: true
+  groupby:
+  - store_name
+  stack: Stack
+  row_limit: 10000
+  show_legend: true
+  rich_tooltip: true
+  y_axis_format: $,.0f
+  truncate_metric: true
+query_context: null
+cache_timeout: null
+uuid: e111856e-b0a7-4064-999d-45f995280cbc
+version: 1.0.0
+dataset_uuid: 8bf7b227-9a79-4ffd-a329-97b800d2982a

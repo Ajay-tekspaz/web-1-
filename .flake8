@@ -1,0 +1,6 @@
+# The lint settings for this repo and for every project stamped from it (template/stamp.py copies this file).
+# They live here, not on the CI command line, so a plain `flake8` anywhere gives the same result as CI.
+# flake8 does not read pyproject.toml.
+[flake8]
+max-line-length = 120
+extend-exclude = .venv,.cache,data,target,dbt_packages,logs,superset_home
